@@ -14,9 +14,14 @@ checkWarn() {
 
 if [ "$#" -ne 2 ]; then
     echo Usage: overlap_peaks.sh file1.bed file2.bed
-    echo The last six columns of the output are
-    echo "    intersect_start, intersect_end, (intersect_end - intersect_start)"
-    echo "    merge_start, merge_end, (merge_end - merge_start)"
+    echo
+    echo overlap_peaks.sh accepts as inputs two BED files that
+    echo you wish to overlap/intersect.
+    echo The output is a tab-delimited text file without headers.
+    echo For each overlap, the script prints the relevant row from
+    echo the first BED file then the second BED file, followed by
+    echo the coordinates and length of the core overlap, followed
+    echo by the coordinates and length of the larger, merged interval.
     exit
 fi
 
