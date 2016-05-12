@@ -28,24 +28,27 @@ check_version_greater_equal() {
 checkWarn() {
   if [ -z `which $1`  ]; then
     echo Error: $1 not found in your path
-    return 0
-  else
-    return 1
+    exit
   fi
 }
 
 if [ "$#" -ne 3 ]; then
     echo Usage: overlap_peaks_genes.sh file.bed file.gtf distance_in_bp
+    echo
+    echo overlap_peaks_genes.sh accepts as inputs a standard Ensembl GTF file,
+    echo and a BED file of your favourite peaks/intervals.
+    echo The output is a tab-delimited text file with headers.
+    echo The script calculates peak centers and TSS-peak center distances.
+    echo As the script uses the entirety of a peak to calculate distance to TSSs,
+    echo please note that there may be cases where the TSS-peak center distance
+    echo is greater than the user-specified distance.
     exit
 fi
 
 checkWarn gtf2tab
-if [ "$?" -lt "1" ]; then  exit; fi
-
 checkWarn bedtools
-if [ "$?" -lt "1" ]; then  exit; fi
 
-check_version_greater_equal 'gtf2tab' v0.1.19
+check_version_greater_equal 'gtf2tab' v0.1.20
 if [ "$?" -lt "1" ]; then  exit; fi
 
 # Create temporary file
