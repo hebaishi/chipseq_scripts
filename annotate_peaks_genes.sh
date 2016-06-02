@@ -40,12 +40,35 @@ checkSorted() {
 }
 
 if [ "$#" -ne 4 ]; then
-    echo Usage:
-    echo annotate_peaks_genes.sh dist file.bed file.gtf distance_in_bp
-    echo annotate_peaks_genes.sh clos file.bed file.gtf N_closest
-    echo
-    echo For clos, your BED file should be sorted
-    exit
+  echo
+  echo Overview:
+  echo =========
+  echo annotate_peaks_genes.sh accepts as inputs a BED file of your favourite
+  echo peaks/intervals, and a standard Ensembl GTF file. The output is a
+  echo tab-delimited text file with headers.
+  echo
+  echo This can be run in two modes: genes within a specified
+  echo distance of peaks, or closest gene\(s\) to peaks.
+  echo
+  echo dist mode:
+  echo ==========
+  echo Usage: annotate_peaks_genes.sh dist file.bed file.gtf distance_in_bp
+  echo
+  echo In \"dist\" mode, the script calculates peak centers and TSS-peak center
+  echo distances. As the script uses the entirety of a peak to calculate distance
+  echo to TSSs, please note that there may be cases where the TSS-peak center
+  echo distance is greater than the user-specified distance.
+  echo
+  echo clos mode:
+  echo ==========
+  echo Usage: annotate_peaks_genes.sh clos file.bed file.gtf N_closest
+  echo
+  echo In \"clos\" mode, the script calculates the smallest distance between the
+  echo peak \(unstranded\) and TSS. In the case of an overlap, note that the script
+  echo returns a zero value for this distance. Note also that the script returns
+  echo \".\" or \"-1\" in genomic feature fields when a peak does not coincide with
+  echo any transcripts in a chromosome/scaffold.
+  exit
 fi
 
 checkWarn gtf2tab
