@@ -31,10 +31,20 @@ checkWarn() {
   fi
 }
 
+checkSorted() {
+  if [ `sort -c -k1,1 -k2,2n $1 2>&1 | wc -l` -gt "0" ]; then
+    echo File $1 is NOT sorted!
+    echo Please re-run with a sorted BED file!
+    exit
+  fi
+}
+
 if [ "$#" -ne 4 ]; then
     echo Usage:
     echo annotate_peaks_genes.sh dist file.bed file.gtf distance_in_bp
     echo annotate_peaks_genes.sh clos file.bed file.gtf N_closest
+    echo
+    echo For clos, your BED file should be sorted
     exit
 fi
 
@@ -56,9 +66,10 @@ if [ "$1" = "dist" ]; then
   bedtools intersect -wa -wb -a $temp_annotation_file -b $2 | awk 'OFS = "\t" { peak_center = int( (($12 - $11)/ 2) + $11  ); $9 = $9"\t" peak_center "\t" (peak_center - $9); print;  }'
 elif [ "$1" = "clos" ]
 then
+  checkSorted $2
   # Generate temporary annotation file
   gtf2tab -C 1 -t transcript -f 1,4,5,7 -a gene_id,transcript_id,gene_name,gene_biotype $3 | awk "OFS=\"\\t\" { if ( \$4 == \"+\") {start_pos =\$2 } else {start_pos = \$3}; \$2 = start_pos; \$3 = start_pos; print }" | tail -n+2 | sort -k1,1 -k2,2n > $temp_annotation_file
-  bedtools closest -t all -k $4 -d -b $temp_annotation_file -a $2
+  bedtools closest -t all -k $4 -D b -b $temp_annotation_file -a $2
 fi
 
 rm $temp_annotation_file
