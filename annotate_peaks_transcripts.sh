@@ -43,7 +43,7 @@ if [ "$#" -ne 4 ]; then
   echo
   echo Overview:
   echo =========
-  echo annotate_peaks_genes.sh accepts as inputs a BED file of your favourite
+  echo annotate_peaks_transcripts.sh accepts as inputs a BED file of your favourite
   echo peaks/intervals, and a standard Ensembl GTF file. The output is a
   echo tab-delimited text file with headers.
   echo
@@ -52,7 +52,7 @@ if [ "$#" -ne 4 ]; then
   echo
   echo dist mode:
   echo ==========
-  echo Usage: annotate_peaks_genes.sh dist file.bed file.gtf distance_in_bp
+  echo Usage: annotate_peaks_transcripts.sh dist file.bed file.gtf distance_in_bp
   echo
   echo In \"dist\" mode, the script calculates peak centers and TSS-peak center
   echo distances. As the script uses the entirety of a peak to calculate distance
@@ -61,7 +61,7 @@ if [ "$#" -ne 4 ]; then
   echo
   echo clos mode:
   echo ==========
-  echo Usage: annotate_peaks_genes.sh clos file.bed file.gtf N_closest
+  echo Usage: annotate_peaks_transcripts.sh clos file.bed file.gtf N_closest
   echo
   echo In \"clos\" mode, the script calculates the smallest distance between the
   echo peak \(unstranded\) and TSS. In the case of an overlap, note that the script
@@ -82,7 +82,7 @@ temp_annotation_file=`mktemp`
 
 if [ "$1" = "dist" ]; then
   # Generate temporary annotation file
-  gtf2tab -C 1 -t gene -f 1,4,5,7 -a gene_id,gene_name,gene_biotype $3 | awk "OFS=\"\\t\" { if ( \$4 == \"+\") {start_pos =\$2 } else {start_pos = \$3}; \$2 = start_pos - $4; if (\$2 < 0) {\$2 = 0;} \$3 = start_pos +  $4; \$9 = start_pos; print  }" | tail -n+2 > $temp_annotation_file
+  gtf2tab -C 1 -t transcript -f 1,4,5,7 -a gene_id,transcript_id,gene_name,gene_biotype $3 | awk "OFS=\"\\t\" { if ( \$4 == \"+\") {start_pos =\$2 } else {start_pos = \$3}; \$2 = start_pos - $4; if (\$2 < 0) {\$2 = 0;} \$3 = start_pos +  $4; \$9 = start_pos; print  }" | tail -n+2 > $temp_annotation_file
   # Print header
   echo -e "chr\tTSS_minus_$3\tTSS_plus_$3\tstrand\tgene_id\ttranscript_id\tgene_name\tgene_biotype\tTSS\tpeak_center\tTSS_to_peak_center\tbed_chr\tbed_start\tbed_end\tbed_other_columns"
   # Perform the intersection and calculate peak center + distance to TSS
@@ -91,7 +91,7 @@ elif [ "$1" = "clos" ]
 then
   checkSorted $2
   # Generate temporary annotation file
-  gtf2tab -C 1 -t gene -f 1,4,5,7 -a gene_id,gene_name,gene_biotype $3 | awk "OFS=\"\\t\" { if ( \$4 == \"+\") {start_pos =\$2 } else {start_pos = \$3}; \$2 = start_pos; \$3 = start_pos; print }" | tail -n+2 | sort -k1,1 -k2,2n > $temp_annotation_file
+  gtf2tab -C 1 -t transcript -f 1,4,5,7 -a gene_id,transcript_id,gene_name,gene_biotype $3 | awk "OFS=\"\\t\" { if ( \$4 == \"+\") {start_pos =\$2 } else {start_pos = \$3}; \$2 = start_pos; \$3 = start_pos; print }" | tail -n+2 | sort -k1,1 -k2,2n > $temp_annotation_file
   bedtools closest -t all -k $4 -D b -b $temp_annotation_file -a $2
 fi
 
